@@ -3,7 +3,7 @@ from tools.wikipedia_tool import wikipedia_tool
 import os
 
 # Configura a chave da API do Gemini
-os.environ["GOOGLE_API_KEY"] = "AIzaSyBo3Mv_D6z3mfA5Ob6nbFKDSZkqI9X5k4o"
+os.environ["GOOGLE_API_KEY"] = ""
 
 # Define o modelo Gemini via CrewAI
 llm = LLM(

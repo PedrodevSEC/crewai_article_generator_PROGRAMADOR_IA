@@ -1,3 +1,4 @@
 # Ambiente virtual
 venv
 .env
+__pycache__
