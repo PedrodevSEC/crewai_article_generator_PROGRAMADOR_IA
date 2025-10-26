@@ -43,10 +43,25 @@ class ArticleGerneratorCrew():
             tools=[WikipediaTool()]
         )
     
+    @agent
+    def fact_checker(self) -> Agent:
+        return Agent(
+            config=self.agents_config['fact_checker'],
+            verbose=True,
+            llm=llm,
+            tools=[WikipediaTool()]
+        )
+
     @task
     def research_task(self) -> Task:
         return Task(
             config=self.tasks_config['research_task'],
+        )
+    
+    @task
+    def fact_check_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['fact_check_task']
         )
 
     @crew
