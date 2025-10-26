@@ -1,39 +1,60 @@
 from crewai import Agent, Crew, Task, Process, LLM
-from tools.wikipedia_tool import wikipedia_tool
+from crewai.project import CrewBase, agent, crew, task,  before_kickoff, after_kickoff
+from tools.wikipedia_tool import WikipediaTool
+from crewai_tools import SerperDevTool
+from crewai.agents.agent_builder.base_agent import BaseAgent
+from typing import List
 import os
 
 # Define o modelo Gemini via CrewAI
 llm = LLM(
-    model="gemini/gemini-2.0-flash",
+    model=os.getenv("MODEL"),
     api_key=os.getenv("GOOGLE_API_KEY"),
     temperature=0.7
 )
 
+@CrewBase
+class ArticleGerneratorCrew():
+    "ArticleGenerator Crew"
 
-# Cria o agente pesquisador
-researcher = Agent(
-    role="Pesquisador de Artigos",
-    goal="Pesquisar informações detalhadas sobre qualquer tema solicitado.",
-    backstory="Um agente especialista em encontrar e resumir informações relevantes da Wikipedia.",
-    tools=[wikipedia_tool],  # sem parênteses!
-    llm=llm
-)
+    agents: List[BaseAgent]
+    tasks: List[Task]
 
-# Cria a tarefa
-research_task = Task(
-    description="Pesquisar informações sobre o tema: 'Inteligência Artificial'.",
-    expected_output="Um resumo detalhado do tema, com 300 palavras.",
-    agent=researcher
-)
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
+    print(agents_config)
+    
+    # @before_kickoff
+    # def before_kickoff_function(self, inputs):
+    #     print(f"Before kickoff function with inputs: {inputs}")
+    #     # return inputs 
 
-# Monta a crew (apenas o agente pesquisador por enquanto)
-crew = Crew(
-    agents=[researcher],
-    tasks=[research_task],
-    # process=Process.sequential
-)
+    # @after_kickoff
+    # def after_kickoff_function(self, result):
+    #     print(f"After kickoff function with result: {result}")
+    #     # return result
 
-# Função para executar
-def run_research():
-    result = crew.kickoff()
-    print(result)
+    @agent
+    def researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['researcher'],
+            verbose=True,
+            llm=llm,
+            tools=[WikipediaTool()]
+        )
+    
+    @task
+    def research_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['research_task'],
+        )
+
+    @crew
+    def crew(self) -> Crew:
+        """Creates the ArticleGenerator crew"""
+        return Crew(
+            agents=self.agents,
+            tasks=self.tasks,
+            process=Process.sequential,
+            verbose=True,
+        )
