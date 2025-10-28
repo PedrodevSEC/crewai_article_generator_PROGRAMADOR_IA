@@ -1,15 +1,15 @@
 import sys
-from crew import ArticleGerneratorCrew
+from .crew import ArticleGeneratorCrew
 
 def run():
     """ Run the crew """
 
     inputs = {
-        'topic': "Brasil"
+        'topic': "Primeira Guerra Mundial"
     }
 
-    ArticleGerneratorCrew().crew().kickoff(inputs=inputs)
+    ArticleGeneratorCrew().crew().kickoff(inputs=inputs)
 
 
-if __name__ == "__main__":
-    run()
+# if __name__ == "__main__":
+#     run()

@@ -1,10 +1,12 @@
 from crewai import Agent, Crew, Task, Process, LLM
 from crewai.project import CrewBase, agent, crew, task,  before_kickoff, after_kickoff
-from tools.wikipedia_tool import WikipediaTool
-from crewai_tools import SerperDevTool
+from src.crewai_article_generator.tools.wikipedia_tool import WikipediaTool
+from src.crewai_article_generator.models import ArticleOut
+# from src.crewai_article_generator.tools.pdf_generator_tool import PDFGeneratorTool
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 import os
+
 
 # Define o modelo Gemini via CrewAI
 llm = LLM(
@@ -14,7 +16,7 @@ llm = LLM(
 )
 
 @CrewBase
-class ArticleGerneratorCrew():
+class ArticleGeneratorCrew():
     "ArticleGenerator Crew"
 
     agents: List[BaseAgent]
@@ -52,6 +54,31 @@ class ArticleGerneratorCrew():
             tools=[WikipediaTool()]
         )
 
+    @agent
+    def writer(self) -> Agent:
+        return Agent(
+            config=self.agents_config['writer'],
+            verbose=True,
+            llm=llm
+        )
+    
+    # @agent
+    # def formatter(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['formatter'],
+    #         verbose=True,
+    #         llm=llm
+    #     )
+    
+    # @agent
+    # def reporter(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['reporter'],
+    #         verbose=True,
+    #         llm=llm,
+    #         tools=[PDFGeneratorTool()]
+    #     )
+
     @task
     def research_task(self) -> Task:
         return Task(
@@ -63,6 +90,25 @@ class ArticleGerneratorCrew():
         return Task(
             config=self.tasks_config['fact_check_task']
         )
+
+    @task
+    def writing_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['writing_task'],
+            output_pydantic=ArticleOut
+        )
+    
+    # @task
+    # def format_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['format_task']
+    #     )
+
+    # @task
+    # def generate_pdf_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['generate_pdf_task']
+    #     )
 
     @crew
     def crew(self) -> Crew:

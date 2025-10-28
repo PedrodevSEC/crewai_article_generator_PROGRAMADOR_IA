@@ -28,12 +28,18 @@ fact_check_task:
     confirmar se todas as informações apresentadas estão coerentes, completas e bem estruturadas.  
     Certifique-se de que não há contradições, repetições ou informações inventadas.
 
+    Analise o relatório **sem consultar a Wikipedia mais de uma vez**. 
+    Caso precise confirmar informações, faça uma única verificação geral e utilize apenas trechos realmente relevantes da Wikipedia.  
+    Evite requisições múltiplas à ferramenta 'WikipediaTool'.
+
     **Instruções importantes:**
     - Analise cada seção do relatório (Visão Geral, Contexto Histórico, Fatos, Conceitos e Impacto).
     - Identifique possíveis inconsistências, omissões ou erros de interpretação.
     - Garanta que o texto é fiel às informações encontradas na Wikipedia.
     - Verifique se os fatos e números estão dentro de um contexto lógico e cronológico.
     - Se houver algo incorreto, aponte de forma clara e objetiva.
+    - **Finalize sua resposta com um relatório completo em Markdown, sem tentar usar ferramentas novamente.**
+    - **Não adicione pensamentos, apenas o relatório final formatado.**
 
   expected_output: >
     Um relatório resumido em Markdown listando:
@@ -41,5 +47,25 @@ fact_check_task:
     - As inconsistências ou contradições detectadas (se houver).
     - Sugestões de ajustes para melhorar a precisão e a clareza do conteúdo.  
     O tom deve ser neutro, técnico e objetivo, sem alterar o conteúdo original.
+    A resposta deve ser o relatório final, não instruções de execução ou raciocínio.
 
   agent: fact_checker
+
+writing_task:
+  description: >
+    Reescrever o relatório técnico validado pelo agente de verificação de fatos
+    em um artigo envolvente, claro e bem estruturado.  
+    Basear-se **exclusivamente** nas informações verificadas, sem adicionar novos dados.  
+    O artigo deve conter:
+      - Um título principal;
+      - Um resumo introdutório (mínimo 50 e máximo 500 caracteres);
+      - Um corpo dividido em seções, cada uma com título e conteúdo;
+      - Um total mínimo de 300 palavras;
+      - Fontes de referência listadas ao final.  
+    O artigo deve ser formatado em **Markdown** e pronto para publicação.
+  expected_output: >
+    Um artigo completo, coeso e informativo, contendo os campos necessários
+    para gerar automaticamente um objeto ArticleOut válido.
+  agent: writer
+  context:
+    - fact_check_task
