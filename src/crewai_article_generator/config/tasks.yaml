@@ -1,71 +1,87 @@
+# Configuração das tarefas que serão executadas pelos Agentes
+
+# Tarefa de pesquisa
 research_task:
   description: >
-    Você é um agente pesquisador. Sua única fonte de informação é a ferramenta 'Wikipedia API'. 
-    Pesquise **apenas** sobre o tópico '{topic}' fornecido e nunca use outras fontes.
-    Produza um relatório detalhado, completo e preciso, evitando informações inventadas.
+    Você é um agente pesquisador.  
+    Sua **única fonte de informação** é a ferramenta 'WikipediaTool'.  
+    Pesquise **apenas** sobre o tópico '{topic}' e nunca utilize outras fontes.  
+    Caso a Wikipedia não tenha informações disponíveis sobre o tópico,
+    tente no máximo **3 consultas diferentes** relacionadas ao termo (sinônimos ou variações simples).
+    Se mesmo assim não houver resultados, **encerre a pesquisa** informando que o tema
+    não possui registro na Wikipedia e finalize a tarefa.  
+    Não tente gerar texto inventado ou complementar a partir de suposições.
 
-    **Instruções importantes:**
-    - Estruture o relatório obrigatoriamente nas seguintes seções:
-      1. **Visão Geral:** resumo conciso do tópico.
-      2. **Contexto Histórico:** origem e marcos principais do tópico.
-      3. **Fatos Principais/Dados:** inclua pelo menos 3 a 5 fatos ou estatísticas verificáveis.
-      4. **Terminologia e Conceitos:** defina termos importantes relacionados ao tópico.
-      5. **Relevância/Impacto:** explique por que o tópico é importante atualmente.
+    Estruture o relatório obrigatoriamente nas seguintes seções:
+      1. Visão Geral
+      2. Contexto Histórico
+      3. Fatos Principais/Dados
+      4. Terminologia e Conceitos
+      5. Relevância/Impacto
+      6. Referências
 
-    - Seja claro, objetivo e factual.
-    - Não crie opiniões nem adicione informações não confirmadas.
-    - Formate o resultado em **Markdown**, mantendo títulos e seções claramente definidos.
+    **Use exclusivamente a WikipediaTool e nunca ultrapasse o limite de 3 buscas.**
+    **INSTRUÇÃO CRÍTICA PARA REFERÊNCIAS:** A seção 6. Referências deve conter **APENAS** o link completo para o artigo da Wikipedia consultado.
 
   expected_output: >
-    Um relatório em Markdown com todas as seções solicitadas, claro, conciso e fiel às informações da Wikipedia. 
+    Um relatório em texto com todas as seções solicitadas, claro, conciso e fiel às informações da Wikipedia. 
     Este relatório deve servir como base factual completa para um redator produzir um artigo sobre o tópico '{topic}'.
+    **Caso não encontre resultados em nenhuma das 3 tentativas de busca, retorne "Nenhum resultado encontrado na Wikipedia para '{topic}'"**]
+    **A seção de Referências deve ser APENAS a URL do artigo da Wikipedia consultado.**
 
   agent: researcher
 
+# Tarefa de verificar os dados trazidos pelo agente Pesquisador
 fact_check_task:
   description: >
     Você é um agente verificador de fatos. Sua função é analisar o relatório produzido pelo agente pesquisador e 
     confirmar se todas as informações apresentadas estão coerentes, completas e bem estruturadas.  
     Certifique-se de que não há contradições, repetições ou informações inventadas.
 
-    Analise o relatório **sem consultar a Wikipedia mais de uma vez**. 
+    Analise o relatório **sem consultar a Wikipedia muitas vezes**. 
     Caso precise confirmar informações, faça uma única verificação geral e utilize apenas trechos realmente relevantes da Wikipedia.  
     Evite requisições múltiplas à ferramenta 'WikipediaTool'.
 
     **Instruções importantes:**
+    - **Se o relatório do pesquisador for apenas a frase "Nenhum resultado encontrado na Wikipedia para '{topic}'", PARE IMEDIATAMENTE e retorne a mesma frase.**
     - Analise cada seção do relatório (Visão Geral, Contexto Histórico, Fatos, Conceitos e Impacto).
     - Identifique possíveis inconsistências, omissões ou erros de interpretação.
     - Garanta que o texto é fiel às informações encontradas na Wikipedia.
     - Verifique se os fatos e números estão dentro de um contexto lógico e cronológico.
     - Se houver algo incorreto, aponte de forma clara e objetiva.
-    - **Finalize sua resposta com um relatório completo em Markdown, sem tentar usar ferramentas novamente.**
+    - **Finalize sua resposta com um relatório completo, sem tentar usar ferramentas novamente.**
     - **Não adicione pensamentos, apenas o relatório final formatado.**
+    - **Use apenas a WikipediaTool para realizar suas buscas.**
 
   expected_output: >
-    Um relatório resumido em Markdown listando:
+    Um relatório resumido listando:
     - Os pontos verificados como corretos.
     - As inconsistências ou contradições detectadas (se houver).
-    - Sugestões de ajustes para melhorar a precisão e a clareza do conteúdo.  
+    - Sugestões de ajustes para melhorar a precisão e a clareza do conteúdo. 
+    - **A seção de Referências do relatório original.**
     O tom deve ser neutro, técnico e objetivo, sem alterar o conteúdo original.
     A resposta deve ser o relatório final, não instruções de execução ou raciocínio.
 
   agent: fact_checker
 
+# Tarefa de esrever o artigo final
 writing_task:
   description: >
-    Reescrever o relatório técnico validado pelo agente de verificação de fatos
-    em um artigo envolvente, claro e bem estruturado.  
-    Basear-se **exclusivamente** nas informações verificadas, sem adicionar novos dados.  
+    Reescrever o relatório técnico validado pelo agente de verificação de fatos em um artigo envolvente, claro e bem estruturado.
+    
+    **REGRA DE VALIDAÇÃO DE CONTEÚDO:**
+    
+    1. **Se o conteúdo do relatório validado for a mensagem de erro** (ex: "Nenhum resultado encontrado na Wikipedia para '{topic}'"), **VOCÊ DEVE PARAR IMEDIATAMENTE** e retornar **APENAS** essa mensagem. Não escreva um artigo sobre outro tópico e não use outras fontes.
+    
+    2. **Caso o relatório contenha dados válidos**, baseie-se **exclusivamente** nas informações verificadas, sem adicionar novos dados.
+    
     O artigo deve conter:
-      - Um título principal;
-      - Um resumo introdutório (mínimo 50 e máximo 500 caracteres);
-      - Um corpo dividido em seções, cada uma com título e conteúdo;
-      - Um total mínimo de 300 palavras;
-      - Fontes de referência listadas ao final.  
-    O artigo deve ser formatado em **Markdown** e pronto para publicação.
+    - Um título principal;
+    - Um resumo introdutório (mínimo 50 e máximo 500 caracteres);
+    - Um corpo dividido em seções, cada uma com título e conteúdo;
+    - Um total mínimo de 300 palavras (aplicável SOMENTE se houver dados válidos);
+    - Fontes de referência listadas ao final (derivadas do relatório original).
+    
   expected_output: >
-    Um artigo completo, coeso e informativo, contendo os campos necessários
-    para gerar automaticamente um objeto ArticleOut válido.
+    Um artigo completo e coeso seguindo as regras de estrutura e palavras, **OU** a mensagem de erro do processo anterior.
   agent: writer
-  context:
-    - fact_check_task

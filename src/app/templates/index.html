@@ -1,0 +1,241 @@
+<!-- ==========================================================
+Interface Web do Gerador de Artigos
+Interface simples feita em HTML/CSS/JS puro.
+Permite digitar um tópico e gerar o artigo.
+========================================================== -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerador de Artigos - CrewAI</title>
+   <!-- Estilo -->
+  <style>
+    :root {
+      --bg-color: #f9fafb;
+      --card-bg: #ffffff;
+      --accent: #10a37f;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      max-width: 800px;
+      width: 100%;
+      padding: 30px 40px;
+      transition: all 0.3s ease;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      resize: none;
+      outline: none;
+      font-size: 1rem;
+      color: var(--text);
+      background: #f9fafb;
+      transition: border-color 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      cursor: pointer;
+      margin-top: 15px;
+      margin-right: 10px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: #0e8f70;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 30px;
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
+    h2, h3, h4 {
+      color: var(--accent);
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 25px 0;
+    }
+
+    .loading {
+      animation: pulse 1.5s infinite ease-in-out;
+      color: var(--muted);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      textarea {
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 Gerador de Artigos CrewAI - Programador IA</h1>
+  <div class="container">
+    <textarea id="topic" placeholder="Digite o tópico do artigo..."></textarea><br />
+    <button onclick="gerarArtigo()">Gerar Artigo</button>
+    <div id="result"></div>
+  </div>
+
+  <!-- Lógica JS -->
+  <script>
+    // Função do botão que dispara o processo de gerar o artigo na Crew.
+    async function gerarArtigo() {
+      // Pega o valor limpo da entrada.
+      const topic = document.getElementById("topic").value.trim();
+      // Exige que o usuário insira um tópico antes de gerar um artigo.
+      if (!topic) {
+        document.getElementById("result").innerHTML = "<p style='color:red;'>⚠️ Digite um tópico primeiro.</p>";
+        return;
+      }
+
+      // Exibe feedback de carregamento
+      document.getElementById("result").innerHTML = "<p class='loading'>Gerando artigo...</p>";
+      // Faz a requisição para a rota /api/generate da API, que inicia o processo de geração do artigo na Crew.
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ topic })
+      });
+
+      // Pega a resposta da requisição
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById("result").innerHTML = `<p style='color:red;'>Erro: ${data.error}</p>`;
+        return;
+      }
+      
+      const article = data.article_json || data;
+
+      // Renderiza o artigo na página (formatado)
+      let html = `
+        <h2>${article.title}</h2>
+        <p><strong>Tópico:</strong> ${article.topic}</p>
+        <p><strong>Resumo:</strong> ${article.summary}</p>
+        <p><strong>Total de palavras:</strong> ${article.word_count}</p>
+        <hr>
+      `;
+
+      if (article.sections?.length) {
+        html += "<h3>📚 Seções:</h3>";
+        article.sections.forEach(sec => {
+          html += `
+            <h4>${sec.title}</h4>
+            <p>${sec.content}</p>
+          `;
+        });
+      }
+
+      if (article.sources?.length) {
+        html += "<h3>🔗 Fontes:</h3><ul>";
+        article.sources.forEach(src => {
+          html += `<li>${src}</li>`;
+        });
+        html += "</ul>";
+      }
+
+      document.getElementById("result").innerHTML = html;
+      localStorage.setItem("article_json", JSON.stringify(article));
+      document.getElementById("btnPdf").style.display = "inline-block";
+    }
+
+    async function gerarPDF() {
+      const article = localStorage.getItem("article_json");
+      if (!article) {
+        alert("Nenhum artigo encontrado. Gere um artigo primeiro.");
+        return;
+      }
+
+      const res = await fetch("/api/pdf", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: article
+      });
+
+      if (!res.ok) {
+        alert("Erro ao gerar PDF.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "artigo.pdf";
+      a.click();
+    }
+  </script>
+</body>
+</html>
