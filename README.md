@@ -51,15 +51,20 @@ O objetivo é criar um sistema gerador de artigos automatizado utilizando um sis
  - 3 - Instalar as dependências
 
    - pip install -r requirements.txt
-
- - 4 - Executar a aplicação Flask
+ - 4 - Configuração do arquivo .env
+     - Crie um arquivo chamado **.env** na raiz do projeto e adicione as seguintes variáveis de ambiente:
+       - **MODEL** → Define o modelo de LLM a ser utilizado.
+           - Exemplo: MODEL="google/gemini-2.0-flash"
+        - **Chave da API do LLM** → O nome da variável depende do provedor escolhido.
+          - Exemplo para o modelo Gemini: "GOOGLE_API_KEY="sua_chave_api".
+ - 5 - Executar a aplicação Flask
     - Na raíz do projeto executar: **python run.py**
   
   Com isso, a API estará rodando no seu local: http://localhost:8000.
 ## 📁 Estrutura do Projeto
   - <img width="286" height="442" alt="image" src="https://github.com/user-attachments/assets/0a156224-5cf3-4a83-a1bf-18020740600d" />
 
-## 🧪 Execução e testes
+## 🧪 Testes
 - **Opção 1: Acesso direto via navegador**
 
   - Acesse o endereço gerado ao executar a aplicação diretamente no navegador para abrir a interface web do gerador de artigos.
@@ -74,3 +79,4 @@ O objetivo é criar um sistema gerador de artigos automatizado utilizando um sis
       }
     ```
      - “Inteligência Artificial” é apenas um exemplo, você pode testar qualquer outro termo disponível na Wikipedia.
+
