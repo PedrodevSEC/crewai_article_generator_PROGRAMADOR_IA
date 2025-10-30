@@ -79,4 +79,42 @@ O objetivo é criar um sistema gerador de artigos automatizado utilizando um sis
       }
     ```
      - “Inteligência Artificial” é apenas um exemplo, você pode testar qualquer outro termo disponível na Wikipedia.
+## 🧾 Resultados
+
+- Abaixo está um exemplo resumido da saída gerada pela API após uma requisição bem-sucedida:
+
+    - Exemplo de Entrada:
+    ```json
+    {
+      "topic": "Inteligência Artificial"
+    }
+    ```
+    - Exemplo de Saída:
+      ```json
+        {
+      "title": "Inteligência Artificial: Uma Visão Abrangente",
+      "topic": "Inteligência Artificial",
+      "summary": "A Inteligência Artificial (IA) busca simular o pensamento humano em máquinas, abrangendo desde sistemas especialistas até ferramentas generativas. Sua evolução histórica e impacto multidisciplinar são vastos.",
+      "word_count": 472,
+      "sections": [
+        {
+          "title": "Visão Geral da Inteligência Artificial",
+          "content": "No campo da informática, a Inteligência Artificial (IA) manifesta-se como..."
+        },
+        {
+          "title": "Contexto Histórico da IA",
+          "content": "A ideia de inteligência artificial não é recente; Aristóteles já vislumbrava..."
+        },
+        {
+          "title": "Relevância e Impacto da IA",
+          "content": "A IA demonstra sua relevância através de aplicações em setores diversificados..."
+        }
+      ],
+      "sources": [
+        "https://pt.wikipedia.org/wiki/Intelig%C3%AAncia_artificial"
+      ]
+    }
+      ```
+    - Exemplo de Saída (Visual):
+      - PDF da página Web com um artigo já gerado: [Gerador de Artigos - CrewAI.pdf](https://github.com/user-attachments/files/23225470/Gerador.de.Artigos.-.CrewAI.pdf)
 
